@@ -17,4 +17,4 @@ set -eo pipefail
 PROFILE="${PROFILE}"
 REGION="${REGION:-us-east-1}"
 
-aws --profile "$PROFILE" --region "$REGION" efs describe-file-systems --output text --query "FileSystems[*].FileSystemId" | xargs -I {} -n 1 echo "{}.efs.$REGION.amazonaws.com"
+aws --profile "$PROFILE" --region "$REGION" efs describe-file-systems --output text --query "FileSystems[*].[FileSystemId,Name]" | awk 'BEGIN { print "ID\tFilesystem URL\tNAME" } { print $1"\t"$1".efs."ENVIRON["REGION"]".amazonaws.com\t"$2 }' | column -ts $'\t'
